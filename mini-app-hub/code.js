@@ -196,16 +196,8 @@ async function handleGetImagePreview() {
             return;
         }
         const bytes = await image.getBytesAsync();
-        // Convert to base64
-        let binary = '';
-        const chunkSize = 8192;
-        for (let i = 0; i < bytes.length; i += chunkSize) {
-            const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
-            for (let j = 0; j < chunk.length; j++) {
-                binary += String.fromCharCode(chunk[j]);
-            }
-        }
-        const base64 = btoa(binary);
+        // Convert to base64 using Figma's built-in method
+        const base64 = figma.base64Encode(bytes);
         figma.ui.postMessage({
             type: 'image-preview',
             success: true,
@@ -296,14 +288,17 @@ async function handleUpdateImage(imageData) {
             });
             return;
         }
-        // Create new fills array
+        // Create new fills array using proper cloning
         const newFills = [];
         for (const fill of currentFills) {
             if (fill.type === 'IMAGE') {
-                newFills.push(Object.assign(Object.assign({}, fill), { imageHash: newImage.hash }));
+                // Clone the paint object properly
+                const clonedPaint = JSON.parse(JSON.stringify(fill));
+                clonedPaint.imageHash = newImage.hash;
+                newFills.push(clonedPaint);
             }
             else {
-                newFills.push(fill);
+                newFills.push(JSON.parse(JSON.stringify(fill)));
             }
         }
         node.fills = newFills;
