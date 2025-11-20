@@ -857,6 +857,42 @@
       parent.postMessage({ pluginMessage: { type: 'get-image-bytes' } }, '*');
     }
 
+    // Convert magenta background color to transparency using Canvas
+    function convertMagentaToTransparency(base64Image) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+
+          ctx.drawImage(img, 0, 0);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+
+          // Convert magenta pixels (RGB: 255, 0, 255) to transparent
+          // Also handle near-magenta colors with some tolerance
+          const tolerance = 30;
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+
+            // Check if pixel is magenta or near-magenta
+            if (r > 255 - tolerance && g < tolerance && b > 255 - tolerance) {
+              data[i + 3] = 0; // Set alpha to 0 (transparent)
+            }
+          }
+
+          ctx.putImageData(imageData, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = reject;
+        img.src = base64Image;
+      });
+    }
+
     // Process image with Gemini API for background removal
     async function processImageWithGemini(imageBytes, apiKey) {
       // Start scanning animation
@@ -886,7 +922,7 @@
             contents: [{
               parts: [
                 {
-                  text: "Remove the background from this image. Extract ONLY the main subject (person, animal, or object in the foreground) and make the background completely transparent. Return a PNG image with an alpha channel where the background pixels have alpha=0 (fully transparent). Do NOT replace the background with any color - it must be transparent/empty. The subject should have clean, precise edges."
+                  text: "Edit this image: Remove the entire background and replace it with solid magenta color (RGB: 255, 0, 255 / hex #FF00FF). Keep ONLY the main subject (person, animal, or object in the foreground) with clean, precise edges. The background must be pure solid magenta #FF00FF with no gradients or variations."
                 },
                 {
                   inlineData: {
@@ -916,7 +952,12 @@
         if (result.candidates && result.candidates[0]?.content?.parts) {
           for (const part of result.candidates[0].content.parts) {
             if (part.inlineData && part.inlineData.data) {
-              processedImageData = `data:image/png;base64,${part.inlineData.data}`;
+              const geminiImageData = `data:image/png;base64,${part.inlineData.data}`;
+
+              showStatus('bg-status', '<div class="loading"><div class="spinner"></div>Converting to transparency...</div>', 'info');
+
+              // Convert magenta to transparency
+              processedImageData = await convertMagentaToTransparency(geminiImageData);
 
               // Update preview with processed image
               const previewImage = document.getElementById('bg-preview-image');
