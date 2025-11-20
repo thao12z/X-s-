@@ -65,6 +65,17 @@ This plugin uses Google Gemini API for AI features.
 
 Your API key is stored locally in Figma's client storage and is never sent to external servers (except Google's API).
 
+## AI Models Used
+
+The plugin uses different Gemini models optimized for each task:
+
+| Feature | Model | Purpose |
+|---------|-------|---------|
+| Remove Background | `gemini-2.0-flash-preview-image-generation` | Image editing with generation capabilities |
+| Auto Update Content | `gemini-1.5-flash` | Fast text processing and generation |
+
+This ensures optimal performance and cost efficiency for each type of task.
+
 ## Technical Details
 
 - Built with TypeScript

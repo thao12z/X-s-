@@ -604,15 +604,16 @@
     }
 
     // Process image with Gemini API for background removal
+    // Using gemini-2.0-flash-preview-image-generation for image editing tasks
     async function processImageWithGemini(imageBytes, apiKey) {
-      showStatus('bg-status', '<div class="loading"><div class="spinner"></div>Processing with Gemini API...</div>', 'info');
+      showStatus('bg-status', '<div class="loading"><div class="spinner"></div>Processing with Gemini API (Image Model)...</div>', 'info');
 
       try {
         // Convert bytes to base64
         const base64Image = btoa(String.fromCharCode.apply(null, imageBytes));
 
-        // Call Gemini API
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
+        // Call Gemini API with image generation model
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -621,7 +622,7 @@
             contents: [{
               parts: [
                 {
-                  text: "Remove the background from this image. Return only the subject with a transparent background. Output the result as a PNG image."
+                  text: "Remove the background from this image completely. Keep only the main subject with a transparent background. Output as PNG."
                 },
                 {
                   inlineData: {
@@ -632,8 +633,7 @@
               ]
             }],
             generationConfig: {
-              responseModalities: ["image", "text"],
-              responseMimeType: "image/png"
+              responseModalities: ["TEXT", "IMAGE"]
             }
           })
         });
@@ -662,7 +662,7 @@
           }
         }
 
-        showStatus('bg-status', 'No image returned from API. The model may not support image generation.', 'warning');
+        showStatus('bg-status', 'No image returned from API. Please ensure your API key has access to image generation models.', 'warning');
       } catch (error) {
         showStatus('bg-status', `Error: ${error.message}`, 'error');
       }
@@ -695,15 +695,16 @@
     }
 
     // Process text content with Gemini
+    // Using gemini-1.5-flash for text-only tasks (faster and cheaper)
     async function processTextWithGemini(textContent, prompt) {
       const apiKey = document.getElementById('update-api-key').value.trim();
 
-      showStatus('update-status', '<div class="loading"><div class="spinner"></div>Processing with Gemini API...</div>', 'info');
+      showStatus('update-status', '<div class="loading"><div class="spinner"></div>Processing with Gemini API (Text Model)...</div>', 'info');
 
       try {
         const textData = textContent.map(t => `[${t.name}]: ${t.text}`).join('\n\n');
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
