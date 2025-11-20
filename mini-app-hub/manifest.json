@@ -9,8 +9,7 @@
   "ui": "ui.html",
   "networkAccess": {
     "allowedDomains": [
-      "https://generativelanguage.googleapis.com",
-      "https://clipdrop-api.co"
+      "https://generativelanguage.googleapis.com"
     ]
   }
 }

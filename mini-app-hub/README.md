@@ -65,35 +65,34 @@ This plugin uses Google Gemini API for AI features.
 
 Your API key is stored locally in Figma's client storage and is never sent to external servers (except Google's API).
 
-## APIs Used
+## API - Google Gemini
 
-Each feature uses a specialized AI optimized for its task:
+Tất cả tính năng đều sử dụng **Google Gemini API**:
 
-| Feature | API | Purpose |
-|---------|-----|---------|
-| Remove Background | **Clipdrop** (Stability AI) | Professional background removal |
-| Auto Update Content | **Google Gemini** (`gemini-1.5-flash`) | Fast text processing |
+| Feature | Model | Purpose |
+|---------|-------|---------|
+| Remove Background | `gemini-2.0-flash-exp` | Xử lý và chỉnh sửa ảnh với AI |
+| Auto Update Content | `gemini-1.5-flash` | Xử lý text nhanh |
 
-### API Keys Required
+### API Key Required
 
-1. **Clipdrop API Key** (for Remove Background)
-   - Get key: [clipdrop.co/apis](https://clipdrop.co/apis)
+**Google Gemini API Key**
+- Free tier available
+- Get key: [Google AI Studio](https://aistudio.google.com/apikey)
 
-2. **Google Gemini API Key** (for Auto Update Content)
-   - Free tier available
-   - Get key: [Google AI Studio](https://makersuite.google.com/app/apikey)
+Chỉ cần 1 API key cho cả hai tính năng.
 
 ### Features
 
 **Remove Background:**
-- Shows preview of selected image
-- Scanning animation during processing
-- Preview result before applying
-- One-click apply to layer
+- Preview ảnh được chọn
+- Animation scan khi đang xử lý
+- Preview kết quả trước khi apply
+- One-click apply vào layer
 
 **Auto Update Content:**
-- Prompt-based text transformation
-- Examples: translate, rewrite, summarize
+- Nhập prompt để hướng dẫn AI
+- Ví dụ: dịch, viết lại, rút gọn
 
 ## Technical Details
 

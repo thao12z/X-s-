@@ -442,7 +442,7 @@ function handleRenameLayers(pattern: string, layerType: string) {
 }
 
 // Save settings to client storage
-async function handleSaveSettings(settings: { clipdropApiKey: string; geminiApiKey: string }) {
+async function handleSaveSettings(settings: { geminiApiKey: string }) {
   try {
     await figma.clientStorage.setAsync('miniAppHubSettings', settings);
 
@@ -468,7 +468,7 @@ async function handleLoadSettings() {
     figma.ui.postMessage({
       type: 'load-settings-result',
       success: true,
-      settings: settings || { clipdropApiKey: '', geminiApiKey: '' }
+      settings: settings || { geminiApiKey: '' }
     });
   } catch (error) {
     figma.ui.postMessage({
