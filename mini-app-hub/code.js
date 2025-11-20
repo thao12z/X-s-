@@ -236,7 +236,7 @@ async function handleRemoveBackground(apiKey, imageData) {
         });
     }
 }
-// Update image with processed data
+// Update image with processed data - creates new layer on top
 async function handleUpdateImage(imageData) {
     const selection = figma.currentPage.selection;
     if (selection.length === 0) {
@@ -247,72 +247,53 @@ async function handleUpdateImage(imageData) {
         });
         return;
     }
-    const node = selection[0];
-    if (!('fills' in node)) {
+    const originalNode = selection[0];
+    // Check if node has position and size
+    if (!('x' in originalNode) || !('y' in originalNode) || !('width' in originalNode) || !('height' in originalNode)) {
         figma.ui.postMessage({
             type: 'update-image-result',
             success: false,
-            error: 'Selected layer cannot have fills'
+            error: 'Selected layer must have position and size'
         });
         return;
     }
     try {
-        // Convert base64 to Uint8Array
+        // Convert base64 to Uint8Array using Figma's built-in method
         const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
-        const binaryString = atob(base64Data);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-        }
+        const bytes = figma.base64Decode(base64Data);
         // Create new image
-        let newImage;
-        try {
-            newImage = figma.createImage(bytes);
+        const newImage = figma.createImage(bytes);
+        // Create new rectangle with same dimensions as original
+        const rect = figma.createRectangle();
+        rect.resize(originalNode.width, originalNode.height);
+        rect.x = originalNode.x;
+        rect.y = originalNode.y;
+        rect.name = originalNode.name + ' (No BG)';
+        // Set image fill
+        rect.fills = [{
+                type: 'IMAGE',
+                scaleMode: 'FILL',
+                imageHash: newImage.hash
+            }];
+        // Get parent and position new rect on top of original
+        const parent = originalNode.parent;
+        if (parent && 'insertChild' in parent) {
+            const originalIndex = parent.children.indexOf(originalNode);
+            parent.insertChild(originalIndex + 1, rect);
         }
-        catch (createError) {
-            figma.ui.postMessage({
-                type: 'update-image-result',
-                success: false,
-                error: 'Failed to create image: ' + createError.message
-            });
-            return;
-        }
-        // Update the node's fill
-        const currentFills = node.fills;
-        // Check if fills is an array (not mixed)
-        if (!Array.isArray(currentFills)) {
-            figma.ui.postMessage({
-                type: 'update-image-result',
-                success: false,
-                error: 'Cannot update layer with mixed fills'
-            });
-            return;
-        }
-        // Create new fills array using proper cloning
-        const newFills = [];
-        for (const fill of currentFills) {
-            if (fill.type === 'IMAGE') {
-                // Clone the paint object properly
-                const clonedPaint = JSON.parse(JSON.stringify(fill));
-                clonedPaint.imageHash = newImage.hash;
-                newFills.push(clonedPaint);
-            }
-            else {
-                newFills.push(JSON.parse(JSON.stringify(fill)));
-            }
-        }
-        node.fills = newFills;
+        // Select the new rectangle
+        figma.currentPage.selection = [rect];
         figma.ui.postMessage({
             type: 'update-image-result',
             success: true,
-            message: 'Image updated successfully'
+            message: 'New layer created on top with background removed'
         });
     }
     catch (error) {
         figma.ui.postMessage({
             type: 'update-image-result',
             success: false,
-            error: 'Failed to update image: ' + error.message
+            error: 'Failed to create image layer: ' + error.message
         });
     }
 }

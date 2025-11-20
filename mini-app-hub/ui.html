@@ -601,11 +601,6 @@
       </button>
     </div>
 
-    <div class="result-actions" id="bg-result-actions">
-      <button class="btn btn-primary" onclick="applyBgResult()">Apply to Layer</button>
-      <button class="btn btn-secondary" onclick="resetBgPreview()">Reset</button>
-    </div>
-
     <div id="bg-status"></div>
   </div>
 
@@ -927,11 +922,15 @@
               const previewImage = document.getElementById('bg-preview-image');
               previewImage.src = processedImageData;
 
-              // Show result actions, hide main action
-              document.getElementById('bg-result-actions').classList.add('show');
-              document.getElementById('bg-main-actions').style.display = 'none';
+              showStatus('bg-status', '<div class="loading"><div class="spinner"></div>Applying to new layer...</div>', 'info');
 
-              showStatus('bg-status', 'Background removed! Click "Apply to Layer" to update the image.', 'success');
+              // Auto-apply: Create new layer on top of original
+              parent.postMessage({
+                pluginMessage: {
+                  type: 'update-image',
+                  imageData: processedImageData
+                }
+              }, '*');
               return;
             }
           }
