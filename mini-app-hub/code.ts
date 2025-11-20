@@ -1,6 +1,10 @@
 // Mini App Hub - Main Plugin Code
 // This plugin provides a central dashboard with multiple mini-tools
 
+// Declare atob/btoa for base64 encoding/decoding (available in Figma plugin environment)
+declare function atob(data: string): string;
+declare function btoa(data: string): string;
+
 figma.showUI(__html__, { width: 400, height: 500 });
 
 // Message handler for UI communication
@@ -8,10 +12,6 @@ figma.ui.onmessage = async (msg: { type: string; [key: string]: any }) => {
   switch (msg.type) {
     case 'get-selection':
       handleGetSelection();
-      break;
-
-    case 'get-image-preview':
-      await handleGetImagePreview();
       break;
 
     case 'remove-background':
@@ -50,84 +50,25 @@ figma.ui.onmessage = async (msg: { type: string; [key: string]: any }) => {
       await handleUpdateTextLayers(msg.updates);
       break;
 
+    case 'get-image-preview':
+      await handleGetImagePreview();
+      break;
+
     case 'cancel':
       figma.closePlugin();
       break;
   }
 };
 
-// Get image preview for display in UI
-async function handleGetImagePreview() {
-  const selection = figma.currentPage.selection;
-
-  if (selection.length === 0) {
-    figma.ui.postMessage({
-      type: 'image-preview',
-      success: false,
-      error: 'No image selected'
-    });
-    return;
-  }
-
-  const node = selection[0];
-
-  // Check if node has fills
-  if (!('fills' in node) || !Array.isArray(node.fills)) {
-    figma.ui.postMessage({
-      type: 'image-preview',
-      success: false,
-      error: 'Selected layer has no fills'
-    });
-    return;
-  }
-
-  const fills = node.fills as Paint[];
-  const imageFill = fills.find((fill): fill is ImagePaint => fill.type === 'IMAGE');
-
-  if (!imageFill || !imageFill.imageHash) {
-    figma.ui.postMessage({
-      type: 'image-preview',
-      success: false,
-      error: 'No image fill found'
-    });
-    return;
-  }
-
-  try {
-    const image = figma.getImageByHash(imageFill.imageHash);
-    if (!image) {
-      figma.ui.postMessage({
-        type: 'image-preview',
-        success: false,
-        error: 'Could not retrieve image'
-      });
-      return;
-    }
-
-    const bytes = await image.getBytesAsync();
-
-    // Convert to base64
-    let binary = '';
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    const base64 = btoa(binary);
-
-    figma.ui.postMessage({
-      type: 'image-preview',
-      success: true,
-      bytes: Array.from(bytes),
-      base64: base64
-    });
-  } catch (error) {
-    figma.ui.postMessage({
-      type: 'image-preview',
-      success: false,
-      error: 'Failed to get image: ' + (error as Error).message
-    });
-  }
-}
+// Listen for selection changes
+figma.on('selectionchange', () => {
+  figma.ui.postMessage({
+    type: 'selection-info',
+    hasSelection: figma.currentPage.selection.length > 0,
+    nodeName: figma.currentPage.selection[0]?.name || '',
+    nodeType: figma.currentPage.selection[0]?.type || ''
+  });
+});
 
 // Update text layers with AI-generated content
 async function handleUpdateTextLayers(updates: Array<{ id: string; newText: string }>) {
@@ -232,6 +173,74 @@ async function handleGetImageBytes() {
       type: 'image-bytes',
       success: false,
       error: 'Failed to get image bytes: ' + (error as Error).message
+    });
+  }
+}
+
+// Get image preview as data URL
+async function handleGetImagePreview() {
+  const selection = figma.currentPage.selection;
+
+  if (selection.length !== 1) {
+    figma.ui.postMessage({
+      type: 'image-preview',
+      success: false
+    });
+    return;
+  }
+
+  const node = selection[0];
+
+  if (!('fills' in node)) {
+    figma.ui.postMessage({
+      type: 'image-preview',
+      success: false
+    });
+    return;
+  }
+
+  const fills = node.fills as Paint[];
+  const imageFill = fills.find((fill): fill is ImagePaint => fill.type === 'IMAGE');
+
+  if (!imageFill || !imageFill.imageHash) {
+    figma.ui.postMessage({
+      type: 'image-preview',
+      success: false
+    });
+    return;
+  }
+
+  try {
+    const image = figma.getImageByHash(imageFill.imageHash);
+    if (!image) {
+      figma.ui.postMessage({
+        type: 'image-preview',
+        success: false
+      });
+      return;
+    }
+
+    const bytes = await image.getBytesAsync();
+
+    // Convert to base64 data URL
+    let binary = '';
+    const chunkSize = 8192;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      const chunk = bytes.slice(i, i + chunkSize);
+      binary += String.fromCharCode.apply(null, Array.from(chunk));
+    }
+    const base64 = btoa(binary);
+    const dataUrl = `data:image/png;base64,${base64}`;
+
+    figma.ui.postMessage({
+      type: 'image-preview',
+      success: true,
+      dataUrl: dataUrl
+    });
+  } catch (error) {
+    figma.ui.postMessage({
+      type: 'image-preview',
+      success: false
     });
   }
 }
@@ -442,7 +451,7 @@ function handleRenameLayers(pattern: string, layerType: string) {
 }
 
 // Save settings to client storage
-async function handleSaveSettings(settings: { geminiApiKey: string }) {
+async function handleSaveSettings(settings: { geminiApiKey: string; geminiModel?: string }) {
   try {
     await figma.clientStorage.setAsync('miniAppHubSettings', settings);
 

@@ -65,34 +65,26 @@ This plugin uses Google Gemini API for AI features.
 
 Your API key is stored locally in Figma's client storage and is never sent to external servers (except Google's API).
 
-## API - Google Gemini
+## API Models
 
-Tất cả tính năng đều sử dụng **Google Gemini API**:
+All features use **Google Gemini API**:
 
 | Feature | Model | Purpose |
 |---------|-------|---------|
-| Remove Background | `gemini-2.0-flash-preview-image-generation` | Xử lý và chỉnh sửa ảnh với AI |
-| Auto Update Content | `gemini-1.5-flash` | Xử lý text nhanh |
+| Remove Background | `gemini-2.0-flash-preview-image-generation` | Image processing with AI |
+| Auto Update Content | `gemini-1.5-flash` | Fast text processing |
 
-### API Key Required
+Only one API key is needed for all features.
 
-**Google Gemini API Key**
-- Free tier available
-- Get key: [Google AI Studio](https://aistudio.google.com/apikey)
+### Remove Background Features
+- Preview selected image
+- Scanning animation during processing
+- Preview result before applying
+- One-click apply to layer
 
-Chỉ cần 1 API key cho cả hai tính năng.
-
-### Features
-
-**Remove Background:**
-- Preview ảnh được chọn
-- Animation scan khi đang xử lý
-- Preview kết quả trước khi apply
-- One-click apply vào layer
-
-**Auto Update Content:**
-- Nhập prompt để hướng dẫn AI
-- Ví dụ: dịch, viết lại, rút gọn
+### Auto Update Content Features
+- Enter prompt to guide AI
+- Examples: translate, rewrite, shorten
 
 ## Technical Details
 

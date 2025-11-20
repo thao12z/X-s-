@@ -1,4 +1,5 @@
 node_modules/
 *.js
+!code.js
 !ui.html
 .DS_Store
