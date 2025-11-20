@@ -71,7 +71,7 @@ Tất cả tính năng đều sử dụng **Google Gemini API**:
 
 | Feature | Model | Purpose |
 |---------|-------|---------|
-| Remove Background | `gemini-2.0-flash-exp` | Xử lý và chỉnh sửa ảnh với AI |
+| Remove Background | `gemini-2.0-flash-preview-image-generation` | Xử lý và chỉnh sửa ảnh với AI |
 | Auto Update Content | `gemini-1.5-flash` | Xử lý text nhanh |
 
 ### API Key Required
