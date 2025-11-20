@@ -67,24 +67,33 @@ Your API key is stored locally in Figma's client storage and is never sent to ex
 
 ## APIs Used
 
-The plugin uses specialized APIs for each task:
+Each feature uses a specialized AI optimized for its task:
 
 | Feature | API | Purpose |
 |---------|-----|---------|
-| Remove Background | **remove.bg** | Professional background removal service |
-| Auto Update Content | **Google Gemini** (`gemini-1.5-flash`) | Fast text processing and generation |
+| Remove Background | **Clipdrop** (Stability AI) | Professional background removal |
+| Auto Update Content | **Google Gemini** (`gemini-1.5-flash`) | Fast text processing |
 
 ### API Keys Required
 
-1. **remove.bg API Key** (for Remove Background)
-   - Free tier: 50 images/month
-   - Get key: [remove.bg/api](https://www.remove.bg/api)
+1. **Clipdrop API Key** (for Remove Background)
+   - Get key: [clipdrop.co/apis](https://clipdrop.co/apis)
 
 2. **Google Gemini API Key** (for Auto Update Content)
    - Free tier available
    - Get key: [Google AI Studio](https://makersuite.google.com/app/apikey)
 
-This ensures optimal performance by using the best tool for each specific task.
+### Features
+
+**Remove Background:**
+- Shows preview of selected image
+- Scanning animation during processing
+- Preview result before applying
+- One-click apply to layer
+
+**Auto Update Content:**
+- Prompt-based text transformation
+- Examples: translate, rewrite, summarize
 
 ## Technical Details
 

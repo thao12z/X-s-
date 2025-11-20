@@ -10,7 +10,7 @@
   "networkAccess": {
     "allowedDomains": [
       "https://generativelanguage.googleapis.com",
-      "https://api.remove.bg"
+      "https://clipdrop-api.co"
     ]
   }
 }
