@@ -222,7 +222,7 @@ async function handleGetImagePreview() {
 
     const bytes = await image.getBytesAsync();
 
-    // Convert to base64 data URL
+    // Convert to base64
     let binary = '';
     const chunkSize = 8192;
     for (let i = 0; i < bytes.length; i += chunkSize) {
@@ -230,12 +230,12 @@ async function handleGetImagePreview() {
       binary += String.fromCharCode.apply(null, Array.from(chunk));
     }
     const base64 = btoa(binary);
-    const dataUrl = `data:image/png;base64,${base64}`;
 
     figma.ui.postMessage({
       type: 'image-preview',
       success: true,
-      dataUrl: dataUrl
+      base64: base64,
+      bytes: Array.from(bytes)
     });
   } catch (error) {
     figma.ui.postMessage({
@@ -307,8 +307,19 @@ async function handleUpdateImage(imageData: string) {
     const newImage = figma.createImage(bytes);
 
     // Update the node's fill
-    const fills = (node as GeometryMixin).fills as Paint[];
-    const newFills = fills.map(fill => {
+    const currentFills = (node as GeometryMixin).fills;
+
+    // Check if fills is an array (not mixed)
+    if (!Array.isArray(currentFills)) {
+      figma.ui.postMessage({
+        type: 'update-image-result',
+        success: false,
+        error: 'Cannot update layer with mixed fills'
+      });
+      return;
+    }
+
+    const newFills = currentFills.map(fill => {
       if (fill.type === 'IMAGE') {
         return {
           ...fill,
