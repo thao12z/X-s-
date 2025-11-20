@@ -65,16 +65,26 @@ This plugin uses Google Gemini API for AI features.
 
 Your API key is stored locally in Figma's client storage and is never sent to external servers (except Google's API).
 
-## AI Models Used
+## APIs Used
 
-The plugin uses different Gemini models optimized for each task:
+The plugin uses specialized APIs for each task:
 
-| Feature | Model | Purpose |
-|---------|-------|---------|
-| Remove Background | `gemini-2.0-flash-preview-image-generation` | Image editing with generation capabilities |
-| Auto Update Content | `gemini-1.5-flash` | Fast text processing and generation |
+| Feature | API | Purpose |
+|---------|-----|---------|
+| Remove Background | **remove.bg** | Professional background removal service |
+| Auto Update Content | **Google Gemini** (`gemini-1.5-flash`) | Fast text processing and generation |
 
-This ensures optimal performance and cost efficiency for each type of task.
+### API Keys Required
+
+1. **remove.bg API Key** (for Remove Background)
+   - Free tier: 50 images/month
+   - Get key: [remove.bg/api](https://www.remove.bg/api)
+
+2. **Google Gemini API Key** (for Auto Update Content)
+   - Free tier available
+   - Get key: [Google AI Studio](https://makersuite.google.com/app/apikey)
+
+This ensures optimal performance by using the best tool for each specific task.
 
 ## Technical Details
 
