@@ -320,7 +320,17 @@ async function handleUpdateImage(imageData: string) {
     }
 
     // Create new image
-    const newImage = figma.createImage(bytes);
+    let newImage;
+    try {
+      newImage = figma.createImage(bytes);
+    } catch (createError) {
+      figma.ui.postMessage({
+        type: 'update-image-result',
+        success: false,
+        error: 'Failed to create image: ' + (createError as Error).message
+      });
+      return;
+    }
 
     // Update the node's fill
     const currentFills = (node as GeometryMixin).fills;
@@ -335,15 +345,18 @@ async function handleUpdateImage(imageData: string) {
       return;
     }
 
-    const newFills = currentFills.map(fill => {
+    // Create new fills array
+    const newFills: Paint[] = [];
+    for (const fill of currentFills) {
       if (fill.type === 'IMAGE') {
-        return {
+        newFills.push({
           ...fill,
           imageHash: newImage.hash
-        };
+        });
+      } else {
+        newFills.push(fill);
       }
-      return fill;
-    });
+    }
 
     (node as GeometryMixin).fills = newFills;
 

@@ -271,7 +271,18 @@ async function handleUpdateImage(imageData) {
             bytes[i] = binaryString.charCodeAt(i);
         }
         // Create new image
-        const newImage = figma.createImage(bytes);
+        let newImage;
+        try {
+            newImage = figma.createImage(bytes);
+        }
+        catch (createError) {
+            figma.ui.postMessage({
+                type: 'update-image-result',
+                success: false,
+                error: 'Failed to create image: ' + createError.message
+            });
+            return;
+        }
         // Update the node's fill
         const currentFills = node.fills;
         // Check if fills is an array (not mixed)
@@ -283,12 +294,16 @@ async function handleUpdateImage(imageData) {
             });
             return;
         }
-        const newFills = currentFills.map(fill => {
+        // Create new fills array
+        const newFills = [];
+        for (const fill of currentFills) {
             if (fill.type === 'IMAGE') {
-                return Object.assign(Object.assign({}, fill), { imageHash: newImage.hash });
+                newFills.push(Object.assign(Object.assign({}, fill), { imageHash: newImage.hash }));
             }
-            return fill;
-        });
+            else {
+                newFills.push(fill);
+            }
+        }
         node.fills = newFills;
         figma.ui.postMessage({
             type: 'update-image-result',
