@@ -65,6 +65,27 @@ This plugin uses Google Gemini API for AI features.
 
 Your API key is stored locally in Figma's client storage and is never sent to external servers (except Google's API).
 
+## API Models
+
+All features use **Google Gemini API**:
+
+| Feature | Model | Purpose |
+|---------|-------|---------|
+| Remove Background | `gemini-2.0-flash-preview-image-generation` | Image processing with AI |
+| Auto Update Content | `gemini-1.5-flash` | Fast text processing |
+
+Only one API key is needed for all features.
+
+### Remove Background Features
+- Preview selected image
+- Scanning animation during processing
+- Preview result before applying
+- One-click apply to layer
+
+### Auto Update Content Features
+- Enter prompt to guide AI
+- Examples: translate, rewrite, shorten
+
 ## Technical Details
 
 - Built with TypeScript
