@@ -368,7 +368,7 @@ function handleRenameLayers(pattern: string, layerType: string) {
 }
 
 // Save settings to client storage
-async function handleSaveSettings(settings: { geminiApiKey: string }) {
+async function handleSaveSettings(settings: { geminiApiKey: string; geminiModel?: string }) {
   try {
     await figma.clientStorage.setAsync('miniAppHubSettings', settings);
 
