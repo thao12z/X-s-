@@ -71,7 +71,7 @@ All features use **Google Gemini API**:
 
 | Feature | Model | Purpose |
 |---------|-------|---------|
-| Remove Background | `gemini-2.5-flash-preview` | Segmentation mask for precise cutout |
+| Remove Background | `gemini-2.5-flash` | Segmentation mask for precise cutout |
 | Auto Update Content | `gemini-3-pro-preview` | Advanced text processing |
 
 Only one API key is needed for all features.
