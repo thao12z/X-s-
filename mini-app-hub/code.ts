@@ -1,6 +1,9 @@
 // Mini App Hub - Main Plugin Code
 // This plugin provides a central dashboard with multiple mini-tools
 
+// Declare atob for base64 decoding (available in Figma plugin environment)
+declare function atob(data: string): string;
+
 figma.showUI(__html__, { width: 400, height: 500 });
 
 // Message handler for UI communication
