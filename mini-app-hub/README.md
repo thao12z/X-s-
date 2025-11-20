@@ -71,16 +71,17 @@ All features use **Google Gemini API**:
 
 | Feature | Model | Purpose |
 |---------|-------|---------|
-| Remove Background | `gemini-3-pro-image-preview` (Nano Banana 2) | Image processing with AI |
+| Remove Background | `gemini-2.5-flash-preview` | Segmentation mask for precise cutout |
 | Auto Update Content | `gemini-3-pro-preview` | Advanced text processing |
 
 Only one API key is needed for all features.
 
 ### Remove Background Features
+- Uses AI segmentation mask for precise subject detection
+- Applies mask to create true PNG transparency
 - Preview selected image
 - Scanning animation during processing
-- Preview result before applying
-- One-click apply to layer
+- Auto-apply to new layer on top of original
 
 ### Auto Update Content Features
 - Enter prompt to guide AI
