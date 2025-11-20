@@ -886,7 +886,7 @@
             contents: [{
               parts: [
                 {
-                  text: "Remove the background from this image completely. Keep only the main subject/foreground object. Make the background transparent. Return the result as a PNG image with transparency."
+                  text: "Remove the background from this image. Extract ONLY the main subject (person, animal, or object in the foreground) and make the background completely transparent. Return a PNG image with an alpha channel where the background pixels have alpha=0 (fully transparent). Do NOT replace the background with any color - it must be transparent/empty. The subject should have clean, precise edges."
                 },
                 {
                   inlineData: {
@@ -897,7 +897,7 @@
               ]
             }],
             generationConfig: {
-              responseModalities: ["TEXT", "IMAGE"]
+              responseModalities: ["IMAGE"]
             }
           })
         });
