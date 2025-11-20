@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mini App Hub</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 12px;
+      color: #333;
+      background: #fff;
+      padding: 16px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .settings-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+    }
+
+    .settings-btn:hover {
+      background: #f0f0f0;
+    }
+
+    .settings-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: #666;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .back-btn:hover {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .back-btn svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    /* Mini App Grid */
+    .mini-app-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .mini-app-card {
+      background: #f8f8f8;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mini-app-card:hover {
+      background: #f0f0f0;
+      border-color: #ccc;
+      transform: translateY(-2px);
+    }
+
+    .mini-app-card .icon {
+      width: 32px;
+      height: 32px;
+      background: #18a0fb;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    .mini-app-card .icon svg {
+      width: 18px;
+      height: 18px;
+      fill: white;
+    }
+
+    .mini-app-card h3 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .mini-app-card p {
+      font-size: 11px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    /* Panel styles */
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    /* Form elements */
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #18a0fb;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: #18a0fb;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0d8de0;
+    }
+
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+      border: 1px solid #e5e5e5;
+    }
+
+    .btn-secondary:hover {
+      background: #e5e5e5;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    /* Status messages */
+    .status {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      margin-top: 12px;
+    }
+
+    .status.info {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .status.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status.error {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .status.warning {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    /* Selection info */
+    .selection-info {
+      padding: 10px;
+      background: #f8f8f8;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      font-size: 11px;
+    }
+
+    .selection-info strong {
+      color: #333;
+    }
+
+    /* Help text */
+    .help-text {
+      font-size: 10px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    /* Rename patterns */
+    .pattern-examples {
+      background: #f8f8f8;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+
+    .pattern-examples h4 {
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .pattern-examples code {
+      display: block;
+      font-size: 10px;
+      color: #666;
+      margin: 2px 0;
+      font-family: 'SF Mono', Monaco, monospace;
+    }
+
+    /* Loading state */
+    .loading {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #e5e5e5;
+      border-top-color: #18a0fb;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* API Key input */
+    .api-key-input {
+      position: relative;
+    }
+
+    .api-key-input input {
+      padding-right: 60px;
+    }
+
+    .toggle-visibility {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 10px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <!-- Main Dashboard -->
+  <div id="dashboard" class="panel active">
+    <div class="header">
+      <h1>Mini App Hub</h1>
+      <button class="settings-btn" onclick="showPanel('settings')">
+        <svg viewBox="0 0 24 24">
+          <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="mini-app-grid">
+      <div class="mini-app-card" onclick="showPanel('remove-bg')">
+        <div class="icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+          </svg>
+        </div>
+        <h3>Remove Background</h3>
+        <p>Remove background from images using AI</p>
+      </div>
+
+      <div class="mini-app-card" onclick="showPanel('auto-update')">
+        <div class="icon" style="background: #7c3aed;">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+          </svg>
+        </div>
+        <h3>Auto Update Content</h3>
+        <p>Update text layers with AI-generated content</p>
+      </div>
+
+      <div class="mini-app-card" onclick="showPanel('rename-layers')">
+        <div class="icon" style="background: #059669;">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 5h2V3c-1.1 0-2 .9-2 2zm0 8h2v-2H3v2zm4 8h2v-2H7v2zM3 9h2V7H3v2zm10-6h-2v2h2V3zm6 0v2h2c0-1.1-.9-2-2-2zM5 21v-2H3c0 1.1.9 2 2 2zm-2-4h2v-2H3v2zM9 3H7v2h2V3zm2 18h2v-2h-2v2zm8-8h2v-2h-2v2zm0 8c1.1 0 2-.9 2-2h-2v2zm0-12h2V7h-2v2zm0 8h2v-2h-2v2zm-4 4h2v-2h-2v2zm0-16h2V3h-2v2z"/>
+          </svg>
+        </div>
+        <h3>Rename Layers</h3>
+        <p>Batch rename layers with patterns</p>
+      </div>
+
+      <div class="mini-app-card" onclick="showPanel('settings')">
+        <div class="icon" style="background: #666;">
+          <svg viewBox="0 0 24 24">
+            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+          </svg>
+        </div>
+        <h3>Settings</h3>
+        <p>Configure API keys and preferences</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Remove Background Panel -->
+  <div id="remove-bg" class="panel">
+    <div class="header">
+      <button class="back-btn" onclick="showPanel('dashboard')">
+        <svg viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        Back
+      </button>
+      <h1>Remove Background</h1>
+    </div>
+
+    <div class="selection-info" id="bg-selection-info">
+      <strong>Selection:</strong> <span id="bg-selection-text">No image selected</span>
+    </div>
+
+    <div class="form-group">
+      <label>Google Gemini API Key</label>
+      <div class="api-key-input">
+        <input type="password" id="bg-api-key" placeholder="Enter your Gemini API key">
+        <button class="toggle-visibility" onclick="toggleApiKeyVisibility('bg-api-key')">Show</button>
+      </div>
+      <p class="help-text">Your API key is stored locally and never sent to our servers.</p>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" id="remove-bg-btn" onclick="removeBackground()">
+        Remove Background
+      </button>
+    </div>
+
+    <div id="bg-status"></div>
+  </div>
+
+  <!-- Auto Update Content Panel -->
+  <div id="auto-update" class="panel">
+    <div class="header">
+      <button class="back-btn" onclick="showPanel('dashboard')">
+        <svg viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        Back
+      </button>
+      <h1>Auto Update Content</h1>
+    </div>
+
+    <div class="selection-info">
+      <strong>Scope:</strong> <span id="update-scope">All text layers on page</span>
+    </div>
+
+    <div class="form-group">
+      <label>Google Gemini API Key</label>
+      <div class="api-key-input">
+        <input type="password" id="update-api-key" placeholder="Enter your Gemini API key">
+        <button class="toggle-visibility" onclick="toggleApiKeyVisibility('update-api-key')">Show</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Instructions</label>
+      <textarea id="update-prompt" placeholder="Describe how you want to update the text content...&#10;&#10;Examples:&#10;- Translate all text to Spanish&#10;- Make the tone more professional&#10;- Replace placeholder text with real content"></textarea>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="autoUpdateContent()">
+        Update Content
+      </button>
+    </div>
+
+    <div id="update-status"></div>
+  </div>
+
+  <!-- Rename Layers Panel -->
+  <div id="rename-layers" class="panel">
+    <div class="header">
+      <button class="back-btn" onclick="showPanel('dashboard')">
+        <svg viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        Back
+      </button>
+      <h1>Rename Layers</h1>
+    </div>
+
+    <div class="pattern-examples">
+      <h4>Pattern Placeholders</h4>
+      <code># - Sequential number (1, 2, 3...)</code>
+      <code>{name} - Original layer name</code>
+      <code>{type} - Layer type (text, frame...)</code>
+      <code>{index} - Zero-based index</code>
+    </div>
+
+    <div class="form-group">
+      <label>Layer Type</label>
+      <select id="layer-type">
+        <option value="all">All Layers</option>
+        <option value="TEXT">Text Layers</option>
+        <option value="FRAME">Frames</option>
+        <option value="RECTANGLE">Rectangles</option>
+        <option value="ELLIPSE">Ellipses</option>
+        <option value="GROUP">Groups</option>
+        <option value="COMPONENT">Components</option>
+        <option value="INSTANCE">Instances</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Rename Pattern</label>
+      <input type="text" id="rename-pattern" placeholder="e.g., txt_#, icon_{index}, {type}_#">
+      <p class="help-text">Use placeholders to create dynamic names</p>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="renameLayers()">
+        Rename Layers
+      </button>
+    </div>
+
+    <div id="rename-status"></div>
+  </div>
+
+  <!-- Settings Panel -->
+  <div id="settings" class="panel">
+    <div class="header">
+      <button class="back-btn" onclick="showPanel('dashboard')">
+        <svg viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        Back
+      </button>
+      <h1>Settings</h1>
+    </div>
+
+    <div class="form-group">
+      <label>Google Gemini API Key</label>
+      <div class="api-key-input">
+        <input type="password" id="settings-api-key" placeholder="Enter your Gemini API key">
+        <button class="toggle-visibility" onclick="toggleApiKeyVisibility('settings-api-key')">Show</button>
+      </div>
+      <p class="help-text">Get your API key from <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a></p>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="saveSettings()">
+        Save Settings
+      </button>
+    </div>
+
+    <div id="settings-status"></div>
+  </div>
+
+  <script>
+    // State
+    let currentPanel = 'dashboard';
+    let savedApiKey = '';
+    let currentImageBytes = null;
+    let textLayersToUpdate = [];
+
+    // Panel navigation
+    function showPanel(panelId) {
+      document.querySelectorAll('.panel').forEach(panel => {
+        panel.classList.remove('active');
+      });
+      document.getElementById(panelId).classList.add('active');
+      currentPanel = panelId;
+
+      // Panel-specific initialization
+      if (panelId === 'remove-bg') {
+        parent.postMessage({ pluginMessage: { type: 'get-selection' } }, '*');
+      } else if (panelId === 'settings') {
+        loadApiKeyToField('settings-api-key');
+      } else if (panelId === 'auto-update') {
+        loadApiKeyToField('update-api-key');
+        parent.postMessage({ pluginMessage: { type: 'get-selection' } }, '*');
+      }
+    }
+
+    // Load API key to a specific field
+    function loadApiKeyToField(fieldId) {
+      const field = document.getElementById(fieldId);
+      if (savedApiKey) {
+        field.value = savedApiKey;
+      }
+    }
+
+    // Toggle API key visibility
+    function toggleApiKeyVisibility(fieldId) {
+      const field = document.getElementById(fieldId);
+      const btn = field.parentElement.querySelector('.toggle-visibility');
+      if (field.type === 'password') {
+        field.type = 'text';
+        btn.textContent = 'Hide';
+      } else {
+        field.type = 'password';
+        btn.textContent = 'Show';
+      }
+    }
+
+    // Show status message
+    function showStatus(elementId, message, type) {
+      const element = document.getElementById(elementId);
+      element.innerHTML = `<div class="status ${type}">${message}</div>`;
+    }
+
+    // Remove Background functionality
+    async function removeBackground() {
+      const apiKey = document.getElementById('bg-api-key').value.trim();
+
+      if (!apiKey) {
+        showStatus('bg-status', 'Please enter your Gemini API key', 'error');
+        return;
+      }
+
+      showStatus('bg-status', '<div class="loading"><div class="spinner"></div>Getting image data...</div>', 'info');
+
+      // Request image bytes from plugin
+      parent.postMessage({ pluginMessage: { type: 'get-image-bytes' } }, '*');
+    }
+
+    // Process image with Gemini API for background removal
+    async function processImageWithGemini(imageBytes, apiKey) {
+      showStatus('bg-status', '<div class="loading"><div class="spinner"></div>Processing with Gemini API...</div>', 'info');
+
+      try {
+        // Convert bytes to base64
+        const base64Image = btoa(String.fromCharCode.apply(null, imageBytes));
+
+        // Call Gemini API
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                {
+                  text: "Remove the background from this image. Return only the subject with a transparent background. Output the result as a PNG image."
+                },
+                {
+                  inlineData: {
+                    mimeType: "image/png",
+                    data: base64Image
+                  }
+                }
+              ]
+            }],
+            generationConfig: {
+              responseModalities: ["image", "text"],
+              responseMimeType: "image/png"
+            }
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error?.message || 'API request failed');
+        }
+
+        const result = await response.json();
+
+        // Check for image in response
+        if (result.candidates && result.candidates[0]?.content?.parts) {
+          for (const part of result.candidates[0].content.parts) {
+            if (part.inlineData && part.inlineData.data) {
+              // Update the image in Figma
+              const imageData = `data:image/png;base64,${part.inlineData.data}`;
+              parent.postMessage({
+                pluginMessage: {
+                  type: 'update-image',
+                  imageData: imageData
+                }
+              }, '*');
+              return;
+            }
+          }
+        }
+
+        showStatus('bg-status', 'No image returned from API. The model may not support image generation.', 'warning');
+      } catch (error) {
+        showStatus('bg-status', `Error: ${error.message}`, 'error');
+      }
+    }
+
+    // Auto Update Content functionality
+    async function autoUpdateContent() {
+      const apiKey = document.getElementById('update-api-key').value.trim();
+      const prompt = document.getElementById('update-prompt').value.trim();
+
+      if (!apiKey) {
+        showStatus('update-status', 'Please enter your Gemini API key', 'error');
+        return;
+      }
+
+      if (!prompt) {
+        showStatus('update-status', 'Please enter instructions for updating content', 'error');
+        return;
+      }
+
+      showStatus('update-status', '<div class="loading"><div class="spinner"></div>Finding text layers...</div>', 'info');
+
+      parent.postMessage({
+        pluginMessage: {
+          type: 'auto-update-content',
+          apiKey: apiKey,
+          prompt: prompt
+        }
+      }, '*');
+    }
+
+    // Process text content with Gemini
+    async function processTextWithGemini(textContent, prompt) {
+      const apiKey = document.getElementById('update-api-key').value.trim();
+
+      showStatus('update-status', '<div class="loading"><div class="spinner"></div>Processing with Gemini API...</div>', 'info');
+
+      try {
+        const textData = textContent.map(t => `[${t.name}]: ${t.text}`).join('\n\n');
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `You are a text content updater. Given the following text layers and the user's instructions, provide updated text for each layer.
+
+TEXT LAYERS:
+${textData}
+
+USER INSTRUCTIONS:
+${prompt}
+
+Respond with a JSON array where each object has "name" (the layer name) and "newText" (the updated text). Only include layers that need to be changed. Example:
+[{"name": "Layer Name", "newText": "Updated text content"}]
+
+Respond ONLY with the JSON array, no other text.`
+              }]
+            }],
+            generationConfig: {
+              responseMimeType: "application/json"
+            }
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error?.message || 'API request failed');
+        }
+
+        const result = await response.json();
+
+        if (result.candidates && result.candidates[0]?.content?.parts?.[0]?.text) {
+          const updatedContent = JSON.parse(result.candidates[0].content.parts[0].text);
+
+          // Map updates back to layer IDs
+          const updates = [];
+          for (const update of updatedContent) {
+            const layer = textContent.find(t => t.name === update.name);
+            if (layer) {
+              updates.push({
+                id: layer.id,
+                newText: update.newText
+              });
+            }
+          }
+
+          if (updates.length > 0) {
+            parent.postMessage({
+              pluginMessage: {
+                type: 'update-text-layers',
+                updates: updates
+              }
+            }, '*');
+          } else {
+            showStatus('update-status', 'No text updates needed based on the instructions', 'info');
+          }
+        } else {
+          showStatus('update-status', 'No valid response from API', 'error');
+        }
+      } catch (error) {
+        showStatus('update-status', `Error: ${error.message}`, 'error');
+      }
+    }
+
+    // Rename Layers functionality
+    function renameLayers() {
+      const pattern = document.getElementById('rename-pattern').value.trim();
+      const layerType = document.getElementById('layer-type').value;
+
+      if (!pattern) {
+        showStatus('rename-status', 'Please enter a rename pattern', 'error');
+        return;
+      }
+
+      parent.postMessage({
+        pluginMessage: {
+          type: 'rename-layers',
+          pattern: pattern,
+          layerType: layerType
+        }
+      }, '*');
+    }
+
+    // Save Settings
+    function saveSettings() {
+      const apiKey = document.getElementById('settings-api-key').value.trim();
+
+      parent.postMessage({
+        pluginMessage: {
+          type: 'save-settings',
+          settings: {
+            geminiApiKey: apiKey
+          }
+        }
+      }, '*');
+    }
+
+    // Message handler from plugin
+    window.onmessage = async (event) => {
+      const msg = event.data.pluginMessage;
+      if (!msg) return;
+
+      switch (msg.type) {
+        case 'plugin-ready':
+          // Load settings on startup
+          parent.postMessage({ pluginMessage: { type: 'load-settings' } }, '*');
+          break;
+
+        case 'selection-info':
+          if (currentPanel === 'remove-bg') {
+            const selectionText = document.getElementById('bg-selection-text');
+            if (msg.hasSelection) {
+              selectionText.textContent = `${msg.nodeName} (${msg.nodeType})`;
+            } else {
+              selectionText.textContent = 'No image selected';
+            }
+          } else if (currentPanel === 'auto-update') {
+            const scopeText = document.getElementById('update-scope');
+            if (msg.hasSelection) {
+              scopeText.textContent = `Selected: ${msg.nodeName}`;
+            } else {
+              scopeText.textContent = 'All text layers on page';
+            }
+          }
+          break;
+
+        case 'image-bytes':
+          if (msg.success) {
+            currentImageBytes = new Uint8Array(msg.bytes);
+            const apiKey = document.getElementById('bg-api-key').value.trim();
+            await processImageWithGemini(currentImageBytes, apiKey);
+          } else {
+            showStatus('bg-status', msg.error, 'error');
+          }
+          break;
+
+        case 'update-image-result':
+          if (msg.success) {
+            showStatus('bg-status', 'Background removed successfully!', 'success');
+          } else {
+            showStatus('bg-status', msg.error, 'error');
+          }
+          break;
+
+        case 'process-text-content':
+          textLayersToUpdate = msg.textContent;
+          await processTextWithGemini(msg.textContent, msg.prompt);
+          break;
+
+        case 'auto-update-result':
+          if (msg.success) {
+            showStatus('update-status', msg.message, 'success');
+          } else {
+            showStatus('update-status', msg.error, 'error');
+          }
+          break;
+
+        case 'rename-result':
+          if (msg.success) {
+            showStatus('rename-status', msg.message, 'success');
+          } else {
+            showStatus('rename-status', msg.error, 'error');
+          }
+          break;
+
+        case 'save-settings-result':
+          if (msg.success) {
+            savedApiKey = document.getElementById('settings-api-key').value.trim();
+            showStatus('settings-status', msg.message, 'success');
+            // Sync to other fields
+            document.getElementById('bg-api-key').value = savedApiKey;
+            document.getElementById('update-api-key').value = savedApiKey;
+          } else {
+            showStatus('settings-status', msg.error, 'error');
+          }
+          break;
+
+        case 'load-settings-result':
+          if (msg.success && msg.settings) {
+            savedApiKey = msg.settings.geminiApiKey || '';
+            document.getElementById('settings-api-key').value = savedApiKey;
+            document.getElementById('bg-api-key').value = savedApiKey;
+            document.getElementById('update-api-key').value = savedApiKey;
+          }
+          break;
+      }
+    };
+  </script>
+</body>
+</html>

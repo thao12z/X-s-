@@ -1,0 +1,16 @@
+{
+  "name": "mini-app-hub",
+  "version": "1.0.0",
+  "description": "A central dashboard Figma plugin with multiple mini-tools",
+  "main": "code.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -p tsconfig.json --watch"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.50.0",
+    "typescript": "^5.0.0"
+  }
+}
