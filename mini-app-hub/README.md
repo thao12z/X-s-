@@ -72,7 +72,7 @@ All features use **Google Gemini API**:
 | Feature | Model | Purpose |
 |---------|-------|---------|
 | Remove Background | `gemini-2.0-flash-preview-image-generation` | Image processing with AI |
-| Auto Update Content | `gemini-1.5-flash` | Fast text processing |
+| Auto Update Content | `gemini-2.0-flash` | Fast text processing |
 
 Only one API key is needed for all features.
 
