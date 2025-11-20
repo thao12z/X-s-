@@ -241,8 +241,10 @@ async function handleGetImagePreview() {
     let binary = '';
     const chunkSize = 8192;
     for (let i = 0; i < bytes.length; i += chunkSize) {
-      const chunk = bytes.slice(i, i + chunkSize);
-      binary += String.fromCharCode.apply(null, Array.from(chunk));
+      const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+      for (let j = 0; j < chunk.length; j++) {
+        binary += String.fromCharCode(chunk[j]);
+      }
     }
     const base64 = btoa(binary);
 
