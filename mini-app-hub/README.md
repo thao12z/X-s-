@@ -71,8 +71,8 @@ All features use **Google Gemini API**:
 
 | Feature | Model | Purpose |
 |---------|-------|---------|
-| Remove Background | `gemini-2.5-flash-image` (Nano Banana) | Image processing with AI |
-| Auto Update Content | `gemini-2.5-flash` | Fast text processing |
+| Remove Background | `gemini-3-pro-image-preview` (Nano Banana 2) | Image processing with AI |
+| Auto Update Content | `gemini-3-pro-preview` | Advanced text processing |
 
 Only one API key is needed for all features.
 
