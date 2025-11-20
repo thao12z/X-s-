@@ -184,7 +184,8 @@ async function handleGetImagePreview() {
   if (selection.length !== 1) {
     figma.ui.postMessage({
       type: 'image-preview',
-      success: false
+      success: false,
+      error: 'Please select exactly one layer'
     });
     return;
   }
@@ -194,18 +195,31 @@ async function handleGetImagePreview() {
   if (!('fills' in node)) {
     figma.ui.postMessage({
       type: 'image-preview',
-      success: false
+      success: false,
+      error: 'Selected layer cannot have image fills'
     });
     return;
   }
 
-  const fills = node.fills as Paint[];
+  const fills = node.fills;
+
+  // Check if fills is an array (not mixed)
+  if (!Array.isArray(fills)) {
+    figma.ui.postMessage({
+      type: 'image-preview',
+      success: false,
+      error: 'Layer has mixed fills'
+    });
+    return;
+  }
+
   const imageFill = fills.find((fill): fill is ImagePaint => fill.type === 'IMAGE');
 
   if (!imageFill || !imageFill.imageHash) {
     figma.ui.postMessage({
       type: 'image-preview',
-      success: false
+      success: false,
+      error: 'No image fill found in layer'
     });
     return;
   }
@@ -215,7 +229,8 @@ async function handleGetImagePreview() {
     if (!image) {
       figma.ui.postMessage({
         type: 'image-preview',
-        success: false
+        success: false,
+        error: 'Could not retrieve image from hash'
       });
       return;
     }
@@ -240,7 +255,8 @@ async function handleGetImagePreview() {
   } catch (error) {
     figma.ui.postMessage({
       type: 'image-preview',
-      success: false
+      success: false,
+      error: 'Failed to get preview: ' + (error as Error).message
     });
   }
 }
