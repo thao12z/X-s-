@@ -424,8 +424,12 @@
         <label>Model</label>
         <select id="setup-model">
           <option value="gemini-1.5-flash">Gemini 1.5 Flash (Recommended)</option>
+          <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash 8B</option>
           <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-          <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
+          <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+          <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
+          <option value="gemini-2.5-flash-preview-05-20">Gemini 2.5 Flash Preview</option>
+          <option value="gemini-2.5-pro-preview-05-06">Gemini 2.5 Pro Preview</option>
         </select>
         <p class="help-text">Flash is faster, Pro is more capable</p>
       </div>
@@ -508,6 +512,13 @@
 
     <div class="selection-info" id="bg-selection-info">
       <strong>Selection:</strong> <span id="bg-selection-text">No image selected</span>
+    </div>
+
+    <div id="bg-preview-container" style="display: none; margin-bottom: 12px;">
+      <label style="font-size: 11px; font-weight: 500; color: #666; margin-bottom: 6px; display: block;">Preview</label>
+      <div style="background: #f0f0f0; border-radius: 6px; padding: 8px; text-align: center;">
+        <img id="bg-preview-image" style="max-width: 100%; max-height: 150px; border-radius: 4px;" />
+      </div>
     </div>
 
     <p class="help-text" style="margin-bottom: 12px;">Select an image layer, then click the button to remove its background using AI.</p>
@@ -717,6 +728,8 @@
       // Panel-specific initialization
       if (panelId === 'remove-bg') {
         parent.postMessage({ pluginMessage: { type: 'get-selection' } }, '*');
+        // Request image preview
+        parent.postMessage({ pluginMessage: { type: 'get-image-preview' } }, '*');
       } else if (panelId === 'settings') {
         loadApiKeyToField('settings-api-key');
       } else if (panelId === 'auto-update') {
@@ -984,10 +997,14 @@ Respond ONLY with the JSON array, no other text.`
         case 'selection-info':
           if (currentPanel === 'remove-bg') {
             const selectionText = document.getElementById('bg-selection-text');
+            const previewContainer = document.getElementById('bg-preview-container');
             if (msg.hasSelection) {
               selectionText.textContent = `${msg.nodeName} (${msg.nodeType})`;
+              // Request preview when selection changes
+              parent.postMessage({ pluginMessage: { type: 'get-image-preview' } }, '*');
             } else {
               selectionText.textContent = 'No image selected';
+              previewContainer.style.display = 'none';
             }
           } else if (currentPanel === 'auto-update') {
             const scopeText = document.getElementById('update-scope');
@@ -996,6 +1013,17 @@ Respond ONLY with the JSON array, no other text.`
             } else {
               scopeText.textContent = 'All text layers on page';
             }
+          }
+          break;
+
+        case 'image-preview':
+          if (msg.success && currentPanel === 'remove-bg') {
+            const previewContainer = document.getElementById('bg-preview-container');
+            const previewImage = document.getElementById('bg-preview-image');
+            previewImage.src = msg.dataUrl;
+            previewContainer.style.display = 'block';
+          } else {
+            document.getElementById('bg-preview-container').style.display = 'none';
           }
           break;
 

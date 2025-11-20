@@ -35,11 +35,24 @@ figma.ui.onmessage = async (msg) => {
         case 'update-text-layers':
             await handleUpdateTextLayers(msg.updates);
             break;
+        case 'get-image-preview':
+            await handleGetImagePreview();
+            break;
         case 'cancel':
             figma.closePlugin();
             break;
     }
 };
+// Listen for selection changes
+figma.on('selectionchange', () => {
+    var _a, _b;
+    figma.ui.postMessage({
+        type: 'selection-info',
+        hasSelection: figma.currentPage.selection.length > 0,
+        nodeName: ((_a = figma.currentPage.selection[0]) === null || _a === void 0 ? void 0 : _a.name) || '',
+        nodeType: ((_b = figma.currentPage.selection[0]) === null || _b === void 0 ? void 0 : _b.type) || ''
+    });
+});
 // Update text layers with AI-generated content
 async function handleUpdateTextLayers(updates) {
     for (const update of updates) {
@@ -130,6 +143,65 @@ async function handleGetImageBytes() {
             type: 'image-bytes',
             success: false,
             error: 'Failed to get image bytes: ' + error.message
+        });
+    }
+}
+// Get image preview as data URL
+async function handleGetImagePreview() {
+    const selection = figma.currentPage.selection;
+    if (selection.length !== 1) {
+        figma.ui.postMessage({
+            type: 'image-preview',
+            success: false
+        });
+        return;
+    }
+    const node = selection[0];
+    if (!('fills' in node)) {
+        figma.ui.postMessage({
+            type: 'image-preview',
+            success: false
+        });
+        return;
+    }
+    const fills = node.fills;
+    const imageFill = fills.find((fill) => fill.type === 'IMAGE');
+    if (!imageFill || !imageFill.imageHash) {
+        figma.ui.postMessage({
+            type: 'image-preview',
+            success: false
+        });
+        return;
+    }
+    try {
+        const image = figma.getImageByHash(imageFill.imageHash);
+        if (!image) {
+            figma.ui.postMessage({
+                type: 'image-preview',
+                success: false
+            });
+            return;
+        }
+        const bytes = await image.getBytesAsync();
+        // Convert to base64 data URL
+        let binary = '';
+        const chunkSize = 8192;
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+            const chunk = bytes.slice(i, i + chunkSize);
+            binary += String.fromCharCode.apply(null, Array.from(chunk));
+        }
+        const base64 = btoa(binary);
+        const dataUrl = `data:image/png;base64,${base64}`;
+        figma.ui.postMessage({
+            type: 'image-preview',
+            success: true,
+            dataUrl: dataUrl
+        });
+    }
+    catch (error) {
+        figma.ui.postMessage({
+            type: 'image-preview',
+            success: false
         });
     }
 }
